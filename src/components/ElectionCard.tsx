@@ -76,9 +76,9 @@ export const ElectionCard = ({ election, onToggle, onVote, isAdmin }: ElectionCa
   };
 
   return (
-    <Card className="h-full">
+    <Card className="election-card group animate-fade-in">
       <CardHeader>
-        <div className="flex justify-between items-start">
+        <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
             <CardTitle className="text-lg">{election.title}</CardTitle>
             {election.description && (
@@ -87,45 +87,59 @@ export const ElectionCard = ({ election, onToggle, onVote, isAdmin }: ElectionCa
               </CardDescription>
             )}
           </div>
-          <Badge variant={election.is_open ? "default" : "secondary"}>
+          <Badge 
+            variant={election.is_open ? "default" : "secondary"}
+            className={election.is_open ? 'status-badge open' : 'status-badge closed'}
+          >
             {election.is_open ? "Open" : "Closed"}
           </Badge>
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         {/* Election Stats */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="flex items-center space-x-2">
-            <Users className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">
-              {voteCount} votes
-            </span>
+          <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30">
+            <div className="p-2 rounded-full bg-primary/10">
+              <Users className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <div className="text-lg font-semibold text-foreground">{voteCount}</div>
+              <div className="text-xs text-muted-foreground">votes</div>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Vote className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">
-              {options.length} options
-            </span>
+          <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30">
+            <div className="p-2 rounded-full bg-success/10">
+              <Vote className="h-4 w-4 text-success" />
+            </div>
+            <div>
+              <div className="text-lg font-semibold text-foreground">{options.length}</div>
+              <div className="text-xs text-muted-foreground">options</div>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Clock className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">
-            Created {format(new Date(election.created_at), 'MMM dd, yyyy')}
-          </span>
+        <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30">
+          <div className="p-2 rounded-full bg-warning/10">
+            <Clock className="h-4 w-4 text-warning" />
+          </div>
+          <div>
+            <div className="text-sm font-medium text-foreground">
+              Created {format(new Date(election.created_at), 'MMM dd, yyyy')}
+            </div>
+            <div className="text-xs text-muted-foreground">Election date</div>
+          </div>
         </div>
 
         {/* Admin Controls */}
         {isAdmin && onToggle && (
-          <div className="flex items-center space-x-2 pt-2 border-t">
+          <div className="flex items-center space-x-3 p-4 border border-border rounded-lg bg-card/50">
             <Switch
               id={`toggle-${election.id}`}
               checked={election.is_open}
               onCheckedChange={() => onToggle(election.id, election.is_open)}
             />
-            <Label htmlFor={`toggle-${election.id}`} className="text-sm">
+            <Label htmlFor={`toggle-${election.id}`} className="text-sm font-medium cursor-pointer">
               {election.is_open ? "Open for voting" : "Closed"}
             </Label>
           </div>
@@ -133,17 +147,22 @@ export const ElectionCard = ({ election, onToggle, onVote, isAdmin }: ElectionCa
 
         {/* Voting Options for Voters */}
         {!isAdmin && election.is_open && onVote && (
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Choose your option:</h4>
+          <div className="space-y-3">
+            <h4 className="text-sm font-semibold text-foreground border-b border-border pb-2">
+              Choose your option:
+            </h4>
             {options.map((option) => (
               <Button
                 key={option.id}
                 variant="outline"
-                className="w-full justify-start"
+                className="vote-button"
                 onClick={() => handleVote(option.id)}
                 disabled={loading}
               >
-                {option.name}
+                <div className="flex items-center justify-between w-full">
+                  <span>{option.name}</span>
+                  <Vote className="h-4 w-4 opacity-50" />
+                </div>
               </Button>
             ))}
           </div>
@@ -151,17 +170,23 @@ export const ElectionCard = ({ election, onToggle, onVote, isAdmin }: ElectionCa
 
         {/* Results Button for Admin */}
         {isAdmin && (
-          <Button variant="outline" className="w-full" disabled>
+          <Button variant="outline" className="w-full hover-lift" disabled>
             <BarChart3 className="h-4 w-4 mr-2" />
             View Results
+            <span className="text-xs ml-2">(Coming Soon)</span>
           </Button>
         )}
 
         {/* Closed Election Message */}
         {!election.is_open && !isAdmin && (
-          <div className="text-center py-4 text-muted-foreground">
-            <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">This election has ended</p>
+          <div className="text-center py-8 space-y-3">
+            <div className="w-16 h-16 mx-auto rounded-full bg-muted/50 flex items-center justify-center">
+              <Clock className="h-8 w-8 text-muted-foreground opacity-50" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">This election has ended</p>
+              <p className="text-xs text-muted-foreground/70">Results will be available soon</p>
+            </div>
           </div>
         )}
       </CardContent>

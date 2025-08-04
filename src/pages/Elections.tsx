@@ -120,11 +120,15 @@ const Elections = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Active Elections</h1>
-        <p className="text-muted-foreground">Participate in ongoing elections</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="container mx-auto px-4 py-12">
+        <div className="text-center mb-12 animate-fade-in">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-6 animate-bounce-gentle">
+            <Vote className="h-10 w-10 text-primary" />
+          </div>
+          <h1 className="text-4xl font-bold text-foreground mb-4">Active Elections</h1>
+          <p className="text-muted-foreground text-lg">Participate in ongoing elections and make your voice heard</p>
+        </div>
 
       {elections.length === 0 ? (
         <Card>
@@ -138,17 +142,17 @@ const Elections = () => {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {elections.map((election) => (
-            <div key={election.id} className="relative">
+          {elections.map((election, index) => (
+            <div key={election.id} className={`relative animate-fade-in`} style={{ animationDelay: `${index * 150}ms` }}>
               <ElectionCard
                 election={election}
                 onVote={userVotes.has(election.id) ? undefined : handleVote}
                 isAdmin={false}
               />
               {userVotes.has(election.id) && (
-                <div className="absolute top-4 right-4">
-                  <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">
-                    Voted
+                <div className="absolute -top-2 -right-2 z-10">
+                  <Badge className="status-badge open shadow-lg animate-scale-in">
+                    ✓ Voted
                   </Badge>
                 </div>
               )}
@@ -158,13 +162,17 @@ const Elections = () => {
       )}
 
       {elections.length > 0 && (
-        <div className="mt-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            You can only vote once per election. Your votes are anonymous and secure.
-          </p>
+        <div className="mt-16 text-center animate-fade-in animation-delay-600">
+          <div className="inline-flex items-center space-x-3 px-6 py-4 rounded-xl bg-card/80 backdrop-blur-sm border border-border/50">
+            <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
+            <p className="text-sm text-muted-foreground">
+              You can only vote once per election. Your votes are anonymous and secure.
+            </p>
+          </div>
         </div>
       )}
     </div>
+  </div>
   );
 };
 

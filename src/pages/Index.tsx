@@ -18,15 +18,19 @@ const Index = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center max-w-md mx-auto p-6">
-          <Vote className="h-16 w-16 mx-auto mb-6 text-primary" />
-          <h1 className="text-4xl font-bold mb-4 text-foreground">Voting System</h1>
-          <p className="text-xl text-muted-foreground mb-8">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/30">
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="animate-bounce-gentle mb-8">
+            <Vote className="h-20 w-20 mx-auto text-primary drop-shadow-lg" />
+          </div>
+          <h1 className="text-5xl font-bold mb-6 text-foreground animate-fade-in">
+            Voting System
+          </h1>
+          <p className="text-xl text-muted-foreground mb-8 animate-fade-in animation-delay-200">
             Secure, transparent, and easy-to-use voting platform
           </p>
-          <Link to="/auth">
-            <Button size="lg" className="w-full">
+          <Link to="/auth" className="animate-fade-in animation-delay-400">
+            <Button size="lg" className="btn-gradient w-full text-lg py-6">
               Get Started
             </Button>
           </Link>
@@ -36,23 +40,30 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       {/* Header */}
-      <header className="border-b border-border bg-card">
+      <header className="border-b border-border/50 bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Vote className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">Voting System</h1>
+          <div className="flex items-center space-x-3">
+            <div className="p-2 rounded-xl bg-primary/10">
+              <Vote className="h-8 w-8 text-primary" />
+            </div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Voting System
+            </h1>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3 px-4 py-2 rounded-xl bg-muted/50">
               <span className="text-sm text-muted-foreground">Welcome,</span>
               <span className="font-medium text-foreground">{user.email}</span>
-              <Badge variant={profile?.role === 'admin' ? 'default' : 'secondary'}>
+              <Badge 
+                variant={profile?.role === 'admin' ? 'default' : 'secondary'}
+                className={profile?.role === 'admin' ? 'status-badge open' : 'status-badge closed'}
+              >
                 {profile?.role || 'voter'}
               </Badge>
             </div>
-            <Button variant="outline" size="sm" onClick={signOut}>
+            <Button variant="outline" size="sm" onClick={signOut} className="hover-lift">
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
             </Button>
@@ -61,22 +72,27 @@ const Index = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <main className="container mx-auto px-4 py-12">
+        <div className="text-center mb-12 animate-fade-in">
+          <h2 className="text-3xl font-bold text-foreground mb-4">Dashboard</h2>
+          <p className="text-muted-foreground text-lg">Choose an action to get started</p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {/* Elections Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Vote className="h-5 w-5 mr-2" />
-                Elections
-              </CardTitle>
-              <CardDescription>
+          <Card className="election-card group animate-fade-in">
+            <CardHeader className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
+                <Vote className="h-8 w-8 text-primary" />
+              </div>
+              <CardTitle className="text-xl">Elections</CardTitle>
+              <CardDescription className="text-base">
                 View and participate in active elections
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               <Link to="/elections">
-                <Button className="w-full">
+                <Button className="btn-gradient w-full">
                   View Elections
                 </Button>
               </Link>
@@ -85,19 +101,19 @@ const Index = () => {
 
           {/* Admin Panel - Only visible to admins */}
           {profile?.role === 'admin' && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Settings className="h-5 w-5 mr-2" />
-                  Admin Panel
-                </CardTitle>
-                <CardDescription>
+            <Card className="election-card group animate-fade-in animation-delay-200">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-warning/10 flex items-center justify-center group-hover:bg-warning/20 transition-colors duration-300">
+                  <Settings className="h-8 w-8 text-warning" />
+                </div>
+                <CardTitle className="text-xl">Admin Panel</CardTitle>
+                <CardDescription className="text-base">
                   Create and manage elections
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <Link to="/admin">
-                  <Button className="w-full">
+                  <Button className="w-full bg-gradient-to-r from-warning to-warning text-warning-foreground hover:shadow-lg hover:scale-105 transition-all duration-300">
                     Manage Elections
                   </Button>
                 </Link>
@@ -107,18 +123,18 @@ const Index = () => {
 
           {/* Users - Admin only */}
           {profile?.role === 'admin' && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Users className="h-5 w-5 mr-2" />
-                  Users
-                </CardTitle>
-                <CardDescription>
+            <Card className="election-card group animate-fade-in animation-delay-400">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-success/10 flex items-center justify-center group-hover:bg-success/20 transition-colors duration-300">
+                  <Users className="h-8 w-8 text-success" />
+                </div>
+                <CardTitle className="text-xl">Users</CardTitle>
+                <CardDescription className="text-base">
                   Manage user roles and permissions
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <Button className="w-full" disabled>
+              <CardContent className="pt-0">
+                <Button className="btn-success w-full" disabled>
                   Manage Users
                   <span className="text-xs ml-2">(Coming Soon)</span>
                 </Button>
@@ -128,10 +144,13 @@ const Index = () => {
         </div>
 
         {/* Status Message */}
-        <div className="mt-8 text-center">
-          <p className="text-muted-foreground">
-            Authentication system is ready! Next step: Implement election management and voting features.
-          </p>
+        <div className="mt-16 text-center animate-fade-in animation-delay-600">
+          <div className="inline-flex items-center space-x-2 px-6 py-3 rounded-full bg-success/10 border border-success/20">
+            <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
+            <p className="text-success-foreground font-medium">
+              Authentication system is ready! Next step: Implement election management and voting features.
+            </p>
+          </div>
         </div>
       </main>
     </div>

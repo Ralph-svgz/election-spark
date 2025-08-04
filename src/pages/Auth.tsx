@@ -62,17 +62,21 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
       <div className="w-full max-w-md">
-        <div className="flex items-center justify-center mb-8">
-          <Vote className="h-8 w-8 mr-2 text-primary" />
-          <h1 className="text-2xl font-bold text-foreground">Voting System</h1>
+        <div className="flex items-center justify-center mb-12 animate-fade-in">
+          <div className="p-3 rounded-2xl bg-primary/10 mr-4 animate-bounce-gentle">
+            <Vote className="h-10 w-10 text-primary" />
+          </div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            Voting System
+          </h1>
         </div>
         
-        <Card>
-          <CardHeader>
-            <CardTitle>Welcome</CardTitle>
-            <CardDescription>
+        <Card className="card-elegant animate-fade-in animation-delay-200">
+          <CardHeader className="text-center pb-6">
+            <CardTitle className="text-2xl">Welcome</CardTitle>
+            <CardDescription className="text-base">
               Sign in to your account or create a new one to get started
             </CardDescription>
           </CardHeader>
@@ -109,7 +113,7 @@ const Auth = () => {
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" className="btn-gradient w-full" disabled={isLoading}>
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -160,7 +164,7 @@ const Auth = () => {
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" className="btn-gradient w-full" disabled={isLoading}>
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -176,9 +180,12 @@ const Auth = () => {
           </CardContent>
         </Card>
         
-        <p className="text-center text-sm text-muted-foreground mt-4">
-          New users are registered as voters by default
-        </p>
+        <div className="text-center text-sm text-muted-foreground mt-6 animate-fade-in animation-delay-400">
+          <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-muted/50">
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+            <span>New users are registered as voters by default</span>
+          </div>
+        </div>
       </div>
     </div>
   );
