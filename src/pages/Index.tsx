@@ -75,10 +75,11 @@ const Index = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full" disabled>
-                View Elections
-                <span className="text-xs ml-2">(Coming Soon)</span>
-              </Button>
+              <Link to="/elections">
+                <Button className="w-full">
+                  View Elections
+                </Button>
+              </Link>
             </CardContent>
           </Card>
 
@@ -95,10 +96,11 @@ const Index = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button className="w-full" disabled>
-                  Manage Elections
-                  <span className="text-xs ml-2">(Coming Soon)</span>
-                </Button>
+                <Link to="/admin">
+                  <Button className="w-full">
+                    Manage Elections
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           )}
