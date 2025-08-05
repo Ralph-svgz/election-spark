@@ -182,7 +182,9 @@ All colors MUST be HSL.
 
   /* Voting specific styles */
   .election-card {
-    @apply card-elegant hover-lift rounded-xl p-6 space-y-4;
+    background: var(--gradient-card);
+    box-shadow: var(--shadow-card);
+    @apply backdrop-blur-sm border border-border/50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 rounded-xl p-6 space-y-4;
   }
 
   .vote-button {
