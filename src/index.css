@@ -195,7 +195,13 @@ All colors MUST be HSL.
 
   /* Admin dashboard enhancements */
   .admin-stat-card {
-    @apply card-elegant p-6 text-center space-y-2 hover:card-glow;
+    background: var(--gradient-card);
+    box-shadow: var(--shadow-card);
+    @apply backdrop-blur-sm border border-border/50 transition-all duration-300 hover:shadow-lg p-6 text-center space-y-2;
+  }
+
+  .admin-stat-card:hover {
+    box-shadow: var(--shadow-glow);
   }
 
   /* Status badges */
