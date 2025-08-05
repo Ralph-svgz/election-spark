@@ -147,59 +147,116 @@ All colors MUST be HSL.
   /* Custom button variants */
   .btn-gradient {
     background: var(--gradient-primary);
-    @apply text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105;
+    color: white;
+    box-shadow: 0 4px 12px -4px hsl(217 91% 32% / 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .btn-gradient:hover {
+    box-shadow: 0 8px 24px -8px hsl(217 91% 32% / 0.4);
+    transform: translateY(-1px);
   }
 
   .btn-success {
     background: var(--gradient-success);
-    @apply text-white shadow-lg hover:shadow-xl transition-all duration-300;
+    color: white;
+    box-shadow: 0 4px 12px -4px hsl(142 76% 36% / 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .btn-success:hover {
+    box-shadow: 0 8px 24px -8px hsl(142 76% 36% / 0.4);
   }
 
   /* Card enhancements */
   .card-elegant {
     background: var(--gradient-card);
     box-shadow: var(--shadow-card);
-    @apply backdrop-blur-sm border border-border/50 transition-all duration-300 hover:shadow-lg;
+    backdrop-filter: blur(8px);
+    border: 1px solid hsl(var(--border) / 0.5);
+    transition: all 0.3s ease;
+  }
+
+  .card-elegant:hover {
+    box-shadow: 0 8px 24px -8px hsl(217 91% 32% / 0.15);
   }
 
   .card-glow {
     box-shadow: var(--shadow-glow);
-    @apply transition-all duration-300;
+    transition: all 0.3s ease;
   }
 
   /* Interactive animations */
   .hover-lift {
-    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+    transition: all 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px -8px hsl(217 91% 32% / 0.15);
   }
 
   .fade-in {
-    @apply animate-in fade-in duration-500;
+    animation: fade-in 0.5s ease-out;
   }
 
   .slide-up {
-    @apply animate-in slide-in-from-bottom-4 duration-500;
+    animation: slide-in-from-bottom-4 0.5s ease-out;
   }
 
   /* Voting specific styles */
   .election-card {
     background: var(--gradient-card);
     box-shadow: var(--shadow-card);
-    @apply backdrop-blur-sm border border-border/50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 rounded-xl p-6 space-y-4;
+    backdrop-filter: blur(8px);
+    border: 1px solid hsl(var(--border) / 0.5);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+  }
+
+  .election-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px -8px hsl(217 91% 32% / 0.15);
   }
 
   .vote-button {
-    @apply w-full justify-start text-left p-4 h-auto bg-gradient-to-r from-background to-muted/50 hover:from-primary/10 hover:to-primary/5 border-2 border-transparent hover:border-primary/20 transition-all duration-300;
+    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
+    padding: 1rem;
+    height: auto;
+    background: linear-gradient(to right, hsl(var(--background)), hsl(var(--muted) / 0.5));
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+  }
+
+  .vote-button:hover {
+    background: linear-gradient(to right, hsl(var(--primary) / 0.1), hsl(var(--primary) / 0.05));
+    border-color: hsl(var(--primary) / 0.2);
   }
 
   .vote-button.voted {
-    @apply from-success/10 to-success/5 border-success/20 text-success-foreground;
+    background: linear-gradient(to right, hsl(var(--success) / 0.1), hsl(var(--success) / 0.05));
+    border-color: hsl(var(--success) / 0.2);
+    color: hsl(var(--success-foreground));
   }
 
   /* Admin dashboard enhancements */
   .admin-stat-card {
     background: var(--gradient-card);
     box-shadow: var(--shadow-card);
-    @apply backdrop-blur-sm border border-border/50 transition-all duration-300 hover:shadow-lg p-6 text-center space-y-2;
+    backdrop-filter: blur(8px);
+    border: 1px solid hsl(var(--border) / 0.5);
+    padding: 1.5rem;
+    text-align: center;
+    gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
   }
 
   .admin-stat-card:hover {
@@ -208,10 +265,13 @@ All colors MUST be HSL.
 
   /* Status badges */
   .status-badge.open {
-    @apply bg-gradient-to-r from-success to-success-light text-success-foreground shadow-sm;
+    background: linear-gradient(to right, hsl(var(--success)), hsl(var(--success-light)));
+    color: hsl(var(--success-foreground));
+    box-shadow: 0 2px 4px -2px hsl(var(--success) / 0.2);
   }
 
   .status-badge.closed {
-    @apply bg-gradient-to-r from-muted to-muted text-muted-foreground;
+    background: linear-gradient(to right, hsl(var(--muted)), hsl(var(--muted)));
+    color: hsl(var(--muted-foreground));
   }
 }
