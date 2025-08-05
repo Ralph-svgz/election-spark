@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Vote, Users, Settings, LogOut } from "lucide-react";
+import { AdminPromotionHelper } from "@/components/AdminPromotionHelper";
 
 const Index = () => {
   const { user, profile, loading, signOut } = useAuth();
@@ -141,6 +142,11 @@ const Index = () => {
               </CardContent>
             </Card>
           )}
+        </div>
+
+        {/* Testing Helper for non-admin users */}
+        <div className="max-w-md mx-auto mt-12">
+          <AdminPromotionHelper />
         </div>
 
         {/* Status Message */}
