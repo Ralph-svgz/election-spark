@@ -27,10 +27,11 @@ interface ElectionCardProps {
   election: Election;
   onToggle?: (electionId: string, isOpen: boolean) => void;
   onVote?: (electionId: string, optionId: string) => void;
+  onViewResults?: (electionId: string) => void;
   isAdmin: boolean;
 }
 
-export const ElectionCard = ({ election, onToggle, onVote, isAdmin }: ElectionCardProps) => {
+export const ElectionCard = ({ election, onToggle, onVote, onViewResults, isAdmin }: ElectionCardProps) => {
   const [options, setOptions] = useState<Option[]>([]);
   const [voteCount, setVoteCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -169,11 +170,14 @@ export const ElectionCard = ({ election, onToggle, onVote, isAdmin }: ElectionCa
         )}
 
         {/* Results Button for Admin */}
-        {isAdmin && (
-          <Button variant="outline" className="w-full hover-lift" disabled>
+        {isAdmin && onViewResults && (
+          <Button 
+            variant="outline" 
+            className="w-full hover-lift"
+            onClick={() => onViewResults(election.id)}
+          >
             <BarChart3 className="h-4 w-4 mr-2" />
             View Results
-            <span className="text-xs ml-2">(Coming Soon)</span>
           </Button>
         )}
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ interface Election {
 const AdminDashboard = () => {
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [elections, setElections] = useState<Election[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -79,6 +81,10 @@ const AdminDashboard = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const handleViewResults = (electionId: string) => {
+    navigate(`/admin/results/${electionId}`);
   };
 
   if (!isAdmin()) {
@@ -174,6 +180,7 @@ const AdminDashboard = () => {
                 key={election.id}
                 election={election}
                 onToggle={handleElectionToggle}
+                onViewResults={handleViewResults}
                 isAdmin={true}
               />
             ))}

@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
 import Elections from "./pages/Elections";
+import ElectionResults from "./pages/ElectionResults";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,11 @@ const App = () => (
             <Route path="/elections" element={
               <ProtectedRoute>
                 <Elections />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/results/:id" element={
+              <ProtectedRoute requireAdmin={true}>
+                <ElectionResults />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
