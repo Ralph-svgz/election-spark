@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Settings, Users, BarChart3 } from "lucide-react";
+import { Plus, Settings, Users, BarChart3, ArrowLeft } from "lucide-react";
 import { CreateElectionDialog } from "@/components/CreateElectionDialog";
 import { ElectionCard } from "@/components/ElectionCard";
 import { useToast } from "@/hooks/use-toast";
@@ -107,17 +107,30 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage elections and monitor voting</p>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header with Back Navigation */}
+        <div className="mb-6">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/')}
+            className="mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
+          </Button>
         </div>
-        <Button onClick={() => setShowCreateDialog(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Election
-        </Button>
-      </div>
+
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
+            <p className="text-muted-foreground">Manage elections and monitor voting</p>
+          </div>
+          <Button onClick={() => setShowCreateDialog(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Election
+          </Button>
+        </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -192,7 +205,8 @@ const AdminDashboard = () => {
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
         onElectionCreated={handleElectionCreated}
-      />
+        />
+      </div>
     </div>
   );
 };

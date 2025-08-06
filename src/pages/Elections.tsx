@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ElectionCard } from "@/components/ElectionCard";
 import { useToast } from "@/hooks/use-toast";
-import { Vote, Clock } from "lucide-react";
+import { Vote, Clock, ArrowLeft } from "lucide-react";
 
 interface Election {
   id: string;
@@ -19,6 +21,7 @@ interface Election {
 const Elections = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [elections, setElections] = useState<Election[]>([]);
   const [loading, setLoading] = useState(true);
   const [userVotes, setUserVotes] = useState<Set<string>>(new Set());
@@ -122,6 +125,18 @@ const Elections = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="container mx-auto px-4 py-12">
+        {/* Header with Back Navigation */}
+        <div className="mb-6">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/')}
+            className="mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
+          </Button>
+        </div>
+
         <div className="text-center mb-12 animate-fade-in">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-6 animate-bounce-gentle">
             <Vote className="h-10 w-10 text-primary" />
@@ -171,8 +186,8 @@ const Elections = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
-  </div>
   );
 };
 
