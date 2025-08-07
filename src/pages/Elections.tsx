@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ElectionCard } from "@/components/ElectionCard";
+import { VotingInterface } from "@/components/VotingInterface";
 import { useToast } from "@/hooks/use-toast";
 import { Vote, Clock, ArrowLeft } from "lucide-react";
 
@@ -25,6 +26,9 @@ const Elections = () => {
   const [elections, setElections] = useState<Election[]>([]);
   const [loading, setLoading] = useState(true);
   const [userVotes, setUserVotes] = useState<Set<string>>(new Set());
+  const [selectedElection, setSelectedElection] = useState<Election | null>(null);
+  const [electionOptions, setElectionOptions] = useState<any[]>([]);
+  const [electionVoteCount, setElectionVoteCount] = useState(0);
 
   useEffect(() => {
     if (user) {

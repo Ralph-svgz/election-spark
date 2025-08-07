@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { BarChart3, Clock, Users, Vote } from "lucide-react";
+import { BarChart3, Clock, Users, Vote, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 
 interface Election {
@@ -32,9 +34,13 @@ interface ElectionCardProps {
 }
 
 export const ElectionCard = ({ election, onToggle, onVote, onViewResults, isAdmin }: ElectionCardProps) => {
+  const { toast } = useToast();
   const [options, setOptions] = useState<Option[]>([]);
   const [voteCount, setVoteCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [votingOptionId, setVotingOptionId] = useState<string | null>(null);
+  const [showVoteConfirm, setShowVoteConfirm] = useState(false);
+  const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchElectionData();
@@ -64,15 +70,33 @@ export const ElectionCard = ({ election, onToggle, onVote, onViewResults, isAdmi
     }
   };
 
-  const handleVote = async (optionId: string) => {
-    if (!onVote) return;
+  const handleVoteClick = (optionId: string) => {
+    setSelectedOptionId(optionId);
+    setShowVoteConfirm(true);
+  };
+
+  const confirmVote = async () => {
+    if (!selectedOptionId || !onVote) return;
     
-    setLoading(true);
+    setVotingOptionId(selectedOptionId);
+    setShowVoteConfirm(false);
+    
     try {
-      await onVote(election.id, optionId);
-      await fetchElectionData(); // Refresh vote count
+      await onVote(election.id, selectedOptionId);
+      toast({
+        title: "Vote Submitted",
+        description: "Your vote has been recorded successfully!",
+      });
+      await fetchElectionData();
+    } catch (error) {
+      toast({
+        title: "Vote Failed",
+        description: "There was an error submitting your vote. Please try again.",
+        variant: "destructive"
+      });
     } finally {
-      setLoading(false);
+      setVotingOptionId(null);
+      setSelectedOptionId(null);
     }
   };
 
@@ -157,12 +181,16 @@ export const ElectionCard = ({ election, onToggle, onVote, onViewResults, isAdmi
                 key={option.id}
                 variant="outline"
                 className="vote-button"
-                onClick={() => handleVote(option.id)}
-                disabled={loading}
+                onClick={() => handleVoteClick(option.id)}
+                disabled={votingOptionId === option.id}
               >
                 <div className="flex items-center justify-between w-full">
                   <span>{option.name}</span>
-                  <Vote className="h-4 w-4 opacity-50" />
+                  {votingOptionId === option.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Vote className="h-4 w-4 opacity-50" />
+                  )}
                 </div>
               </Button>
             ))}
@@ -193,6 +221,25 @@ export const ElectionCard = ({ election, onToggle, onVote, onViewResults, isAdmi
             </div>
           </div>
         )}
+
+        {/* Vote Confirmation Dialog */}
+        <AlertDialog open={showVoteConfirm} onOpenChange={setShowVoteConfirm}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirm Your Vote</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to vote for "{options.find(opt => opt.id === selectedOptionId)?.name}"? 
+                This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmVote}>
+                Confirm Vote
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardContent>
     </Card>
   );
