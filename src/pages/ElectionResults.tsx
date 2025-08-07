@@ -4,6 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { ElectionResults as ElectionResultsComponent } from "@/components/ElectionResults";
+import { LiveVoteCounter } from "@/components/LiveVoteCounter";
+import { UserPresence } from "@/components/UserPresence";
+import { VotingAnalytics } from "@/components/VotingAnalytics";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
 interface Election {
@@ -100,11 +103,39 @@ const ElectionResultsPage = () => {
           </Button>
         </div>
 
-        <ElectionResultsComponent
-          electionId={election.id}
-          electionTitle={election.title}
-          isOpen={election.is_open}
-        />
+        <div className="space-y-8">
+          {/* Main Results */}
+          <ElectionResultsComponent
+            electionId={election.id}
+            electionTitle={election.title}
+            isOpen={election.is_open}
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Live Counter */}
+            <div className="lg:col-span-2">
+              <LiveVoteCounter
+                electionId={election.id}
+                electionTitle={election.title}
+                isOpen={election.is_open}
+              />
+            </div>
+
+            {/* User Presence */}
+            <div>
+              <UserPresence
+                electionId={election.id}
+                showViewers={true}
+              />
+            </div>
+          </div>
+
+          {/* Detailed Analytics */}
+          <VotingAnalytics
+            electionId={election.id}
+            isAdmin={true}
+          />
+        </div>
       </div>
     </div>
   );

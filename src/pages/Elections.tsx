@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ElectionCard } from "@/components/ElectionCard";
-import { VotingInterface } from "@/components/VotingInterface";
+import { UserPresence } from "@/components/UserPresence";
 import { useToast } from "@/hooks/use-toast";
 import { Vote, Clock, ArrowLeft } from "lucide-react";
 
@@ -160,23 +160,41 @@ const Elections = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {elections.map((election, index) => (
-            <div key={election.id} className={`relative animate-fade-in`} style={{ animationDelay: `${index * 150}ms` }}>
-              <ElectionCard
-                election={election}
-                onVote={userVotes.has(election.id) ? undefined : handleVote}
-                isAdmin={false}
-              />
-              {userVotes.has(election.id) && (
-                <div className="absolute -top-2 -right-2 z-10">
-                  <Badge className="status-badge open shadow-lg animate-scale-in">
-                    ✓ Voted
-                  </Badge>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Elections Grid */}
+          <div className="lg:col-span-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {elections.map((election, index) => (
+                <div key={election.id} className={`relative animate-fade-in`} style={{ animationDelay: `${index * 150}ms` }}>
+                  <ElectionCard
+                    election={election}
+                    onVote={userVotes.has(election.id) ? undefined : handleVote}
+                    isAdmin={false}
+                  />
+                  {userVotes.has(election.id) && (
+                    <div className="absolute -top-2 -right-2 z-10">
+                      <Badge className="status-badge open shadow-lg animate-scale-in">
+                        ✓ Voted
+                      </Badge>
+                    </div>
+                  )}
                 </div>
-              )}
+              ))}
             </div>
-          ))}
+          </div>
+
+          {/* User Presence Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-4 space-y-4">
+              {elections.map(election => (
+                <UserPresence
+                  key={election.id}
+                  electionId={election.id}
+                  showViewers={true}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
