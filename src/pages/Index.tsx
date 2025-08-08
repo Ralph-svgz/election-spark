@@ -5,75 +5,110 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Vote, Users, Settings, LogOut } from "lucide-react";
 import { AdminPromotionHelper } from "@/components/AdminPromotionHelper";
+import { SEO } from "@/components/SEO";
 
 const Index = () => {
   const { user, profile, loading, signOut } = useAuth();
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "VoteFlow",
+    "description": "Secure online voting platform with real-time results and advanced analytics",
+    "url": window.location.origin,
+    "applicationCategory": "Voting System",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse">Loading...</div>
-      </div>
+      <>
+        <SEO structuredData={structuredData} />
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="animate-pulse">Loading...</div>
+        </div>
+      </>
     );
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/30">
-        <div className="text-center max-w-md mx-auto p-8">
-          <div className="animate-bounce-gentle mb-8">
-            <Vote className="h-20 w-20 mx-auto text-primary drop-shadow-lg" />
+      <>
+        <SEO 
+          title="VoteFlow - Secure Online Voting Platform"
+          description="Create and participate in secure online elections with real-time results, advanced analytics, and user-friendly voting interface."
+          structuredData={structuredData}
+        />
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/30">
+          <div className="text-center max-w-md mx-auto p-8">
+            <div className="animate-bounce-gentle mb-8">
+              <Vote className="h-20 w-20 mx-auto text-primary drop-shadow-lg" />
+            </div>
+            <h1 className="text-5xl font-bold mb-6 text-foreground animate-fade-in">
+              VoteFlow
+            </h1>
+            <p className="text-xl text-muted-foreground mb-8 animate-fade-in animation-delay-200">
+              Secure, transparent, and easy-to-use voting platform
+            </p>
+            <Link to="/auth" className="animate-fade-in animation-delay-400">
+              <Button size="lg" className="btn-gradient w-full text-lg py-6">
+                Get Started
+              </Button>
+            </Link>
           </div>
-          <h1 className="text-5xl font-bold mb-6 text-foreground animate-fade-in">
-            Voting System
-          </h1>
-          <p className="text-xl text-muted-foreground mb-8 animate-fade-in animation-delay-200">
-            Secure, transparent, and easy-to-use voting platform
-          </p>
-          <Link to="/auth" className="animate-fade-in animation-delay-400">
-            <Button size="lg" className="btn-gradient w-full text-lg py-6">
-              Get Started
-            </Button>
-          </Link>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      {/* Header */}
-      <header className="border-b border-border/50 bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-xl bg-primary/10">
-              <Vote className="h-8 w-8 text-primary" />
+    <>
+      <SEO 
+        title="Dashboard | VoteFlow"
+        description="Access your VoteFlow dashboard to participate in elections and manage voting activities."
+        structuredData={structuredData}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+        {/* Header */}
+        <header className="border-b border-border/50 bg-card/80 backdrop-blur-sm sticky top-0 z-50"
+                role="banner">
+          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 rounded-xl bg-primary/10">
+                <Vote className="h-8 w-8 text-primary" aria-hidden="true" />
+              </div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                VoteFlow
+              </h1>
             </div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              Voting System
-            </h1>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-3 px-4 py-2 rounded-xl bg-muted/50">
-              <span className="text-sm text-muted-foreground">Welcome,</span>
-              <span className="font-medium text-foreground">{user.email}</span>
-              <Badge 
-                variant={profile?.role === 'admin' ? 'default' : 'secondary'}
-                className={profile?.role === 'admin' ? 'status-badge open' : 'status-badge closed'}
-              >
-                {profile?.role || 'voter'}
-              </Badge>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3 px-4 py-2 rounded-xl bg-muted/50">
+                <span className="text-sm text-muted-foreground">Welcome,</span>
+                <span className="font-medium text-foreground">{user.email}</span>
+                <Badge 
+                  variant={profile?.role === 'admin' ? 'default' : 'secondary'}
+                  className={profile?.role === 'admin' ? 'status-badge open' : 'status-badge closed'}
+                  aria-label={`User role: ${profile?.role || 'voter'}`}
+                >
+                  {profile?.role || 'voter'}
+                </Badge>
+              </div>
+              <Button variant="outline" size="sm" onClick={signOut} className="hover-lift"
+                      aria-label="Sign out of your account">
+                <LogOut className="h-4 w-4 mr-2" aria-hidden="true" />
+                Sign Out
+              </Button>
             </div>
-            <Button variant="outline" size="sm" onClick={signOut} className="hover-lift">
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-12">
+        {/* Main Content */}
+        <main className="container mx-auto px-4 py-12" role="main">
         <div className="text-center mb-12 animate-fade-in">
           <h2 className="text-3xl font-bold text-foreground mb-4">Dashboard</h2>
           <p className="text-muted-foreground text-lg">Choose an action to get started</p>
@@ -152,14 +187,15 @@ const Index = () => {
         {/* Status Message */}
         <div className="mt-16 text-center animate-fade-in animation-delay-600">
           <div className="inline-flex items-center space-x-2 px-6 py-3 rounded-full bg-success/10 border border-success/20">
-            <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
+            <div className="w-2 h-2 rounded-full bg-success animate-pulse" aria-hidden="true"></div>
             <p className="text-success-foreground font-medium">
-              Authentication system is ready! Next step: Implement election management and voting features.
+              VoteFlow is ready! Create elections, vote securely, and view real-time results.
             </p>
           </div>
         </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </>
   );
 };
 
