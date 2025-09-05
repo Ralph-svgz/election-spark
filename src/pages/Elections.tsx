@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ElectionCard } from "@/components/ElectionCard";
 import { UserPresence } from "@/components/UserPresence";
+import { VotingInterface } from "@/components/VotingInterface";
 import { useToast } from "@/hooks/use-toast";
 import { Vote, Clock, ArrowLeft } from "lucide-react";
 
@@ -23,12 +24,12 @@ const Elections = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedElectionId = searchParams.get('election');
+  
   const [elections, setElections] = useState<Election[]>([]);
   const [loading, setLoading] = useState(true);
   const [userVotes, setUserVotes] = useState<Set<string>>(new Set());
-  const [selectedElection, setSelectedElection] = useState<Election | null>(null);
-  const [electionOptions, setElectionOptions] = useState<any[]>([]);
-  const [electionVoteCount, setElectionVoteCount] = useState(0);
 
   useEffect(() => {
     if (user) {
@@ -77,46 +78,33 @@ const Elections = () => {
     }
   };
 
-  const handleVote = async (electionId: string, optionId: string) => {
-    if (!user) return;
-
-    // Check if user already voted
-    if (userVotes.has(electionId)) {
-      toast({
-        title: "Already Voted",
-        description: "You have already voted in this election",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('votes')
-        .insert({
-          user_id: user.id,
-          election_id: electionId,
-          option_id: optionId
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Vote Recorded",
-        description: "Your vote has been successfully recorded"
-      });
-
-      // Update local state
-      setUserVotes(prev => new Set([...prev, electionId]));
-    } catch (error) {
-      console.error('Error casting vote:', error);
-      toast({
-        title: "Error",
-        description: "Failed to record your vote",
-        variant: "destructive"
-      });
-    }
+  const handleElectionSelect = (electionId: string) => {
+    setSearchParams({ election: electionId });
   };
+
+  const handleBackToElections = () => {
+    setSearchParams({});
+  };
+
+  // If viewing a specific election, show the voting interface
+  if (selectedElectionId) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+        <div className="container mx-auto px-4 py-12">
+          <Button 
+            variant="outline" 
+            onClick={handleBackToElections}
+            className="mb-6"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Elections
+          </Button>
+          
+          <VotingInterface electionId={selectedElectionId} />
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -168,7 +156,7 @@ const Elections = () => {
                 <div key={election.id} className={`relative animate-fade-in`} style={{ animationDelay: `${index * 150}ms` }}>
                   <ElectionCard
                     election={election}
-                    onVote={userVotes.has(election.id) ? undefined : handleVote}
+                    onVote={() => handleElectionSelect(election.id)}
                     isAdmin={false}
                   />
                   {userVotes.has(election.id) && (

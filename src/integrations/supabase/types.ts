@@ -19,8 +19,10 @@ export type Database = {
           created_at: string
           created_by: string
           description: string | null
+          end_date: string | null
           id: string
           is_open: boolean
+          start_date: string | null
           title: string
           updated_at: string
         }
@@ -28,8 +30,10 @@ export type Database = {
           created_at?: string
           created_by: string
           description?: string | null
+          end_date?: string | null
           id?: string
           is_open?: boolean
+          start_date?: string | null
           title: string
           updated_at?: string
         }
@@ -37,8 +41,10 @@ export type Database = {
           created_at?: string
           created_by?: string
           description?: string | null
+          end_date?: string | null
           id?: string
           is_open?: boolean
+          start_date?: string | null
           title?: string
           updated_at?: string
         }
@@ -47,18 +53,21 @@ export type Database = {
       options: {
         Row: {
           created_at: string
+          description: string | null
           election_id: string
           id: string
           name: string
         }
         Insert: {
           created_at?: string
+          description?: string | null
           election_id: string
           id?: string
           name: string
         }
         Update: {
           created_at?: string
+          description?: string | null
           election_id?: string
           id?: string
           name?: string

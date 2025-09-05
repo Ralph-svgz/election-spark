@@ -1,222 +1,278 @@
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Vote, Clock, Users, Loader2, CheckCircle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, Vote, Users, Clock } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 interface Option {
   id: string;
   name: string;
+  description?: string;
   election_id: string;
+  created_at: string;
+}
+
+interface Election {
+  id: string;
+  title: string;
+  description?: string;
+  is_open: boolean;
+  start_date?: string;
+  end_date?: string;
   created_at: string;
 }
 
 interface VotingInterfaceProps {
   electionId: string;
-  electionTitle: string;
-  electionDescription?: string;
-  options: Option[];
-  totalVotes: number;
-  hasVoted: boolean;
-  onVote: (electionId: string, optionId: string) => Promise<void>;
-  onRefresh: () => Promise<void>;
 }
 
-export const VotingInterface = ({
-  electionId,
-  electionTitle,
-  electionDescription,
-  options,
-  totalVotes,
-  hasVoted,
-  onVote,
-  onRefresh
-}: VotingInterfaceProps) => {
-  const { toast } = useToast();
-  const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
+export const VotingInterface: React.FC<VotingInterfaceProps> = ({ electionId }) => {
+  const { user } = useAuth();
+  const [election, setElection] = useState<Election | null>(null);
+  const [options, setOptions] = useState<Option[]>([]);
+  const [selectedOption, setSelectedOption] = useState<string>('');
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [voting, setVoting] = useState(false);
-  const [justVoted, setJustVoted] = useState(false);
+  const [isVoting, setIsVoting] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [voteCount, setVoteCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (electionId && user) {
+      fetchElectionData();
+      checkIfUserVoted();
+      fetchVoteCount();
+      
+      // Set up realtime subscription for vote count
+      const channel = supabase
+        .channel('vote-updates')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'votes',
+            filter: `election_id=eq.${electionId}`
+          },
+          () => {
+            fetchVoteCount();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [electionId, user]);
+
+  const fetchElectionData = async () => {
+    try {
+      // Fetch election details
+      const { data: electionData, error: electionError } = await supabase
+        .from('elections')
+        .select('*')
+        .eq('id', electionId)
+        .single();
+
+      if (electionError) throw electionError;
+      setElection(electionData);
+
+      // Fetch options
+      const { data: optionsData, error: optionsError } = await supabase
+        .from('options')
+        .select('*')
+        .eq('election_id', electionId)
+        .order('created_at');
+
+      if (optionsError) throw optionsError;
+      setOptions(optionsData || []);
+    } catch (error) {
+      console.error('Error fetching election data:', error);
+      toast.error('Failed to load election data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const checkIfUserVoted = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('votes')
+        .select('id')
+        .eq('election_id', electionId)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      setHasVoted(!!data);
+    } catch (error) {
+      console.error('Error checking vote status:', error);
+    }
+  };
+
+  const fetchVoteCount = async () => {
+    try {
+      const { count, error } = await supabase
+        .from('votes')
+        .select('*', { count: 'exact', head: true })
+        .eq('election_id', electionId);
+
+      if (error) throw error;
+      setVoteCount(count || 0);
+    } catch (error) {
+      console.error('Error fetching vote count:', error);
+    }
+  };
 
   const handleOptionSelect = (optionId: string) => {
-    if (hasVoted || voting) return;
-    setSelectedOptionId(optionId);
+    if (hasVoted || !election?.is_open) return;
+    setSelectedOption(optionId);
     setShowConfirmDialog(true);
   };
 
   const confirmVote = async () => {
-    if (!selectedOptionId || voting) return;
+    if (!user || !selectedOption) return;
     
-    setVoting(true);
-    setShowConfirmDialog(false);
-    
+    setIsVoting(true);
     try {
-      await onVote(electionId, selectedOptionId);
-      setJustVoted(true);
-      toast({
-        title: "Vote Submitted Successfully!",
-        description: "Thank you for participating in this election.",
-      });
-      await onRefresh();
+      const { error } = await supabase
+        .from('votes')
+        .insert({
+          election_id: electionId,
+          option_id: selectedOption,
+          user_id: user.id
+        });
+
+      if (error) throw error;
+
+      setHasVoted(true);
+      setShowConfirmDialog(false);
+      toast.success('Vote cast successfully!');
+      fetchVoteCount();
     } catch (error) {
-      toast({
-        title: "Vote Failed",
-        description: "There was an error submitting your vote. Please try again.",
-        variant: "destructive"
-      });
+      console.error('Error casting vote:', error);
+      toast.error('Failed to cast vote. Please try again.');
     } finally {
-      setVoting(false);
-      setSelectedOptionId(null);
+      setIsVoting(false);
     }
   };
 
-  const selectedOption = options.find(opt => opt.id === selectedOptionId);
+  if (loading) {
+    return (
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardContent className="flex items-center justify-center p-8">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="ml-2">Loading election...</span>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!election) {
+    return (
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardContent className="p-8 text-center">
+          <p className="text-muted-foreground">Election not found</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const selectedOptionData = options.find(opt => opt.id === selectedOption);
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Election Header */}
-      <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-2xl flex items-center gap-2">
-                <Vote className="h-6 w-6 text-primary" />
-                {electionTitle}
-              </CardTitle>
-              {electionDescription && (
-                <CardDescription className="mt-2 text-base">
-                  {electionDescription}
-                </CardDescription>
-              )}
-            </div>
-            <Badge variant="secondary" className="flex items-center gap-1">
-              <Users className="h-3 w-3" />
-              {totalVotes} votes
-            </Badge>
-          </div>
-        </CardHeader>
-      </Card>
-
-      {/* Voting Status */}
-      {hasVoted && (
-        <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
-              <CheckCircle className="h-5 w-5" />
-              <span className="font-medium">You have already voted in this election</span>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Just Voted Confirmation */}
-      {justVoted && (
-        <Card className="border-primary/20 bg-primary/5 animate-scale-in">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <CheckCircle className="h-12 w-12 text-primary mx-auto mb-3" />
-              <h3 className="text-lg font-semibold text-primary mb-2">Vote Recorded!</h3>
-              <p className="text-muted-foreground">
-                Your vote has been successfully submitted and counted.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Voting Options */}
+    <div className="w-full max-w-2xl mx-auto space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            Select Your Choice
-          </CardTitle>
-          <CardDescription>
-            Choose one option to cast your vote. This action cannot be undone.
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl">{election.title}</CardTitle>
+            <Badge variant={election.is_open ? "default" : "secondary"}>
+              {election.is_open ? "Active" : "Closed"}
+            </Badge>
+          </div>
+          {election.description && (
+            <p className="text-muted-foreground">{election.description}</p>
+          )}
+          
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <Users className="h-4 w-4" />
+              <span>{voteCount} votes</span>
+            </div>
+            {election.end_date && (
+              <div className="flex items-center gap-1">
+                <Clock className="h-4 w-4" />
+                <span>Ends {new Date(election.end_date).toLocaleDateString()}</span>
+              </div>
+            )}
+          </div>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
+        
+        <CardContent className="space-y-4">
+          {hasVoted && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 text-green-800">
+                <Vote className="h-4 w-4" />
+                <span className="font-medium">You have already voted in this election</span>
+              </div>
+            </div>
+          )}
+
+          <div className="grid gap-3">
             {options.map((option) => (
               <Button
                 key={option.id}
-                variant={selectedOptionId === option.id ? "default" : "outline"}
-                size="lg"
+                variant={selectedOption === option.id ? "default" : "outline"}
+                className="justify-start p-4 h-auto"
                 onClick={() => handleOptionSelect(option.id)}
-                disabled={hasVoted || voting}
-                className="w-full justify-start text-left h-auto py-4 px-6 hover-scale"
+                disabled={hasVoted || !election.is_open || isVoting}
               >
-                <div className="flex items-center gap-3 w-full">
-                  {voting && selectedOptionId === option.id ? (
-                    <Loader2 className="h-5 w-5 animate-spin flex-shrink-0" />
-                  ) : (
-                    <div className={`w-5 h-5 rounded-full border-2 flex-shrink-0 ${
-                      selectedOptionId === option.id 
-                        ? 'bg-primary border-primary' 
-                        : 'border-muted-foreground'
-                    }`} />
+                <div className="text-left">
+                  <div className="font-medium">{option.name}</div>
+                  {option.description && (
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {option.description}
+                    </div>
                   )}
-                  <span className="text-base font-medium">{option.name}</span>
                 </div>
               </Button>
             ))}
           </div>
 
-          {!hasVoted && selectedOptionId && (
-            <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-              <p className="text-sm text-muted-foreground mb-3">
-                You have selected: <span className="font-medium text-foreground">{selectedOption?.name}</span>
-              </p>
-              <Button 
-                onClick={() => setShowConfirmDialog(true)}
-                disabled={voting}
-                className="w-full"
-              >
-                {voting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Submitting Vote...
-                  </>
-                ) : (
-                  <>
-                    <Vote className="h-4 w-4 mr-2" />
-                    Cast Your Vote
-                  </>
-                )}
-              </Button>
+          {!election.is_open && !hasVoted && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <p className="text-yellow-800">This election is currently closed.</p>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Confirmation Dialog */}
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm Your Vote</AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <p>You are about to vote for:</p>
-              <p className="font-semibold text-foreground text-lg">
-                "{selectedOption?.name}"
-              </p>
-              <p className="text-sm">
-                Please confirm your choice. Once submitted, your vote cannot be changed.
-              </p>
+            <AlertDialogDescription>
+              You are about to vote for "{selectedOptionData?.name}". 
+              This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={voting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmVote} disabled={voting}>
-              {voting ? (
+            <AlertDialogCancel disabled={isVoting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmVote} disabled={isVoting}>
+              {isVoting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Submitting...
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Casting Vote...
                 </>
               ) : (
-                "Confirm Vote"
+                'Confirm Vote'
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
