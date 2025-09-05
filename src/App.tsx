@@ -6,6 +6,7 @@ import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
 import Elections from "./pages/Elections";
 import ElectionResults from "./pages/ElectionResults";
+import Users from "./pages/Users";
 import NotFound from "./pages/NotFound";
 
 const App = () => (
@@ -27,11 +28,11 @@ const App = () => (
           <Elections />
         </ProtectedRoute>
       } />
-      <Route path="/admin/results/:id" element={
-        <ProtectedRoute requireAdmin={true}>
-          <ElectionResults />
-        </ProtectedRoute>
-      } />
+            <Route path="/users" element={
+              <ProtectedRoute requireAdmin={true}>
+                <Users />
+              </ProtectedRoute>
+            } />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

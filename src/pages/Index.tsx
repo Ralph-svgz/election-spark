@@ -170,10 +170,11 @@ const Index = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-0">
-                <Button className="btn-success w-full" disabled>
-                  Manage Users
-                  <span className="text-xs ml-2">(Coming Soon)</span>
-                </Button>
+                <Link to="/users">
+                  <Button className="btn-success w-full">
+                    Manage Users
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           )}
