@@ -6,10 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { Loader2, Vote } from "lucide-react";
 
 const Auth = () => {
   const { user, signIn, signUp, loading } = useAuth();
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -41,7 +43,15 @@ const Auth = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    await signIn(formData.email, formData.password);
+    const { error } = await signIn(formData.email, formData.password);
+    
+    if (error) {
+      toast({
+        title: "Sign In Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
     
     setIsLoading(false);
   };
@@ -50,13 +60,30 @@ const Auth = () => {
     e.preventDefault();
     
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match");
+      toast({
+        title: "Password Mismatch",
+        description: "Passwords don't match. Please try again.",
+        variant: "destructive"
+      });
       return;
     }
     
     setIsLoading(true);
     
-    await signUp(formData.email, formData.password);
+    const { error } = await signUp(formData.email, formData.password);
+    
+    if (error) {
+      toast({
+        title: "Sign Up Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Check your email",
+        description: "Please check your email for a confirmation link."
+      });
+    }
     
     setIsLoading(false);
   };
