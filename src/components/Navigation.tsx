@@ -10,6 +10,11 @@ export const Navigation = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  // Don't render navigation on auth page
+  if (location.pathname === "/auth") {
+    return null;
+  }
+
   return (
     <nav className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
