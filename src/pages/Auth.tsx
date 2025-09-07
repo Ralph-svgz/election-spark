@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ModeToggle } from "@/components/ModeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Vote } from "lucide-react";
@@ -89,7 +90,12 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4 relative">
+      {/* Dark mode toggle in top right */}
+      <div className="absolute top-4 right-4">
+        <ModeToggle />
+      </div>
+      
       <div className="w-full max-w-md">
         <div className="flex items-center justify-center mb-12 animate-fade-in">
           <div className="p-3 rounded-2xl bg-primary/10 mr-4 animate-bounce-gentle">
