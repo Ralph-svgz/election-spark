@@ -77,53 +77,54 @@ const Index = () => {
         {/* Header */}
         <header className="border-b border-border/50 bg-card/80 backdrop-blur-sm sticky top-0 z-50"
                 role="banner">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-xl bg-primary/10">
-                <Vote className="h-8 w-8 text-primary" aria-hidden="true" />
+          <div className="container mx-auto px-4 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="p-1.5 rounded-lg bg-primary/10">
+                  <Vote className="h-6 w-6 text-primary" aria-hidden="true" />
+                </div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                  VoteFlow
+                </h1>
               </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                VoteFlow
-              </h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3 px-4 py-2 rounded-xl bg-muted/50">
-                <span className="text-sm text-muted-foreground">Welcome,</span>
-                <span className="font-medium text-foreground">{user.email}</span>
-                <Badge 
-                  variant={profile?.role === 'admin' ? 'default' : 'secondary'}
-                  className={profile?.role === 'admin' ? 'status-badge open' : 'status-badge closed'}
-                  aria-label={`User role: ${profile?.role || 'voter'}`}
-                >
-                  {profile?.role || 'voter'}
-                </Badge>
-              </div>
-              <Button variant="outline" size="sm" onClick={signOut} className="hover-lift"
+              <Button variant="ghost" size="sm" onClick={signOut} className="hover-lift"
                       aria-label="Sign out of your account">
-                <LogOut className="h-4 w-4 mr-2" aria-hidden="true" />
-                Sign Out
+                <LogOut className="h-4 w-4" aria-hidden="true" />
               </Button>
+            </div>
+            <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/30">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-muted-foreground">Welcome,</span>
+                <span className="font-medium text-foreground text-sm truncate max-w-[120px]">{user.email}</span>
+              </div>
+              <Badge 
+                variant={profile?.role === 'admin' ? 'default' : 'secondary'}
+                className={`text-xs ${profile?.role === 'admin' ? 'status-badge open' : 'status-badge closed'}`}
+                aria-label={`User role: ${profile?.role || 'voter'}`}
+              >
+                {profile?.role || 'voter'}
+              </Badge>
             </div>
           </div>
         </header>
 
         {/* Main Content */}
-        <main className="container mx-auto px-4 py-12" role="main">
-        <div className="text-center mb-12 animate-fade-in">
-          <h2 className="text-3xl font-bold text-foreground mb-4">Dashboard</h2>
-          <p className="text-muted-foreground text-lg">Choose an action to get started</p>
+        <main className="container mx-auto px-4 py-6" role="main">
+        <div className="text-center mb-8 animate-fade-in">
+          <h2 className="text-2xl font-bold text-foreground mb-2">Dashboard</h2>
+          <p className="text-muted-foreground">Choose an action to get started</p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
           {/* Elections Card */}
           <Card className="election-card group animate-fade-in">
-            <CardHeader className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
-                <Vote className="h-8 w-8 text-primary" />
+            <CardHeader className="text-center pb-4">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
+                <Vote className="h-6 w-6 text-primary" />
               </div>
-              <CardTitle className="text-xl">Elections</CardTitle>
-              <CardDescription className="text-base">
-                View and participate in active elections
+              <CardTitle className="text-lg">Elections</CardTitle>
+              <CardDescription className="text-sm">
+                View and participate in elections
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
@@ -138,12 +139,12 @@ const Index = () => {
           {/* Admin Panel - Only visible to admins */}
           {profile?.role === 'admin' && (
             <Card className="election-card group animate-fade-in animation-delay-200">
-              <CardHeader className="text-center">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-warning/10 flex items-center justify-center group-hover:bg-warning/20 transition-colors duration-300">
-                  <Settings className="h-8 w-8 text-warning" />
+              <CardHeader className="text-center pb-4">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-warning/10 flex items-center justify-center group-hover:bg-warning/20 transition-colors duration-300">
+                  <Settings className="h-6 w-6 text-warning" />
                 </div>
-                <CardTitle className="text-xl">Admin Panel</CardTitle>
-                <CardDescription className="text-base">
+                <CardTitle className="text-lg">Admin Panel</CardTitle>
+                <CardDescription className="text-sm">
                   Create and manage elections
                 </CardDescription>
               </CardHeader>
@@ -160,12 +161,12 @@ const Index = () => {
           {/* Users - Admin only */}
           {profile?.role === 'admin' && (
             <Card className="election-card group animate-fade-in animation-delay-400">
-              <CardHeader className="text-center">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-success/10 flex items-center justify-center group-hover:bg-success/20 transition-colors duration-300">
-                  <Users className="h-8 w-8 text-success" />
+              <CardHeader className="text-center pb-4">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-success/10 flex items-center justify-center group-hover:bg-success/20 transition-colors duration-300">
+                  <Users className="h-6 w-6 text-success" />
                 </div>
-                <CardTitle className="text-xl">Users</CardTitle>
-                <CardDescription className="text-base">
+                <CardTitle className="text-lg">Users</CardTitle>
+                <CardDescription className="text-sm">
                   Manage user roles and permissions
                 </CardDescription>
               </CardHeader>
@@ -181,15 +182,15 @@ const Index = () => {
         </div>
 
         {/* Testing Helper for non-admin users */}
-        <div className="max-w-md mx-auto mt-12">
+        <div className="max-w-sm mx-auto mt-8">
           <AdminPromotionHelper />
         </div>
 
         {/* Status Message */}
-        <div className="mt-16 text-center animate-fade-in animation-delay-600">
-          <div className="inline-flex items-center space-x-2 px-6 py-3 rounded-full bg-success/10 border border-success/20">
+        <div className="mt-8 text-center animate-fade-in animation-delay-600">
+          <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-success/10 border border-success/20">
             <div className="w-2 h-2 rounded-full bg-success animate-pulse" aria-hidden="true"></div>
-            <p className="text-success-foreground font-medium">
+            <p className="text-success-foreground font-medium text-sm">
               VoteFlow is ready! Create elections, vote securely, and view real-time results.
             </p>
           </div>
