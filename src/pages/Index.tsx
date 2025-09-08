@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Vote, Users, Settings, LogOut } from "lucide-react";
-import { AdminPromotionHelper } from "@/components/AdminPromotionHelper";
+
 import { SEO } from "@/components/SEO";
 
 const Index = () => {
@@ -181,10 +181,6 @@ const Index = () => {
           )}
         </div>
 
-        {/* Testing Helper for non-admin users */}
-        <div className="max-w-sm mx-auto mt-8">
-          <AdminPromotionHelper />
-        </div>
 
         {/* Status Message */}
         <div className="mt-8 text-center animate-fade-in animation-delay-600">
