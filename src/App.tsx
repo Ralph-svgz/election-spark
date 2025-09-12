@@ -26,14 +26,14 @@ const App = () => (
             <AdminDashboard />
           </ProtectedRoute>
         } />
+        <Route path="/admin/results/:id" element={
+          <ProtectedRoute requireAdmin={true}>
+            <ElectionResults />
+          </ProtectedRoute>
+        } />
         <Route path="/elections" element={
           <ProtectedRoute>
             <Elections />
-          </ProtectedRoute>
-        } />
-        <Route path="/elections/:id/results" element={
-          <ProtectedRoute requireAdmin={true}>
-            <ElectionResults />
           </ProtectedRoute>
         } />
         <Route path="/users" element={
