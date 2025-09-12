@@ -31,11 +31,16 @@ const App = () => (
             <Elections />
           </ProtectedRoute>
         } />
-              <Route path="/users" element={
-                <ProtectedRoute requireAdmin={true}>
-                  <Users />
-                </ProtectedRoute>
-              } />
+        <Route path="/elections/:id/results" element={
+          <ProtectedRoute requireAdmin={true}>
+            <ElectionResults />
+          </ProtectedRoute>
+        } />
+        <Route path="/users" element={
+          <ProtectedRoute requireAdmin={true}>
+            <Users />
+          </ProtectedRoute>
+        } />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
