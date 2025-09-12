@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,31 +8,31 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ModeToggle } from "@/components/ModeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Vote } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2, Vote, KeyRound } from "lucide-react";
 
 const Auth = () => {
-  const { user, signIn, signUp, resetPassword, loading } = useAuth();
+  const { user, signIn, signUp, resetPassword, updatePassword, loading } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: ""
   });
 
-  // Redirect if already authenticated
-  if (user) {
-    return <Navigate to="/" replace />;
-  }
+  useEffect(() => {
+    // Listen for auth state changes to detect password recovery
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsPasswordRecovery(true);
+      }
+    });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -90,6 +90,50 @@ const Auth = () => {
     setIsLoading(false);
   };
 
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (formData.password !== formData.confirmPassword) {
+      toast({
+        title: "Password Mismatch",
+        description: "Passwords don't match. Please try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast({
+        title: "Password Too Short",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    const { error } = await updatePassword(formData.password);
+    
+    if (error) {
+      toast({
+        title: "Update Password Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Password Updated",
+        description: "Your password has been successfully updated!"
+      });
+      setIsPasswordRecovery(false);
+      // Clear form
+      setFormData({ email: "", password: "", confirmPassword: "" });
+    }
+    
+    setIsLoading(false);
+  };
+
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -122,6 +166,90 @@ const Auth = () => {
     
     setIsLoading(false);
   };
+
+  // Show password recovery form if user clicked reset link
+  if (isPasswordRecovery) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4 relative">
+        <div className="absolute top-4 right-4">
+          <ModeToggle />
+        </div>
+        
+        <div className="w-full max-w-md">
+          <div className="flex items-center justify-center mb-12 animate-fade-in">
+            <div className="p-3 rounded-2xl bg-primary/10 mr-4 animate-bounce-gentle">
+              <KeyRound className="h-10 w-10 text-primary" />
+            </div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Set New Password
+            </h1>
+          </div>
+          
+          <Card className="card-elegant animate-fade-in animation-delay-200">
+            <CardHeader className="text-center pb-6">
+              <CardTitle className="text-2xl">Update Your Password</CardTitle>
+              <CardDescription className="text-base">
+                Enter your new password below
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleUpdatePassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">New Password</Label>
+                  <Input
+                    id="new-password"
+                    name="password"
+                    type="password"
+                    placeholder="Enter your new password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    required
+                    minLength={6}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-new-password">Confirm New Password</Label>
+                  <Input
+                    id="confirm-new-password"
+                    name="confirmPassword"
+                    type="password"
+                    placeholder="Confirm your new password"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    required
+                    minLength={6}
+                  />
+                </div>
+                <Button type="submit" className="btn-gradient w-full" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Updating Password...
+                    </>
+                  ) : (
+                    "Update Password"
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect if already authenticated
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4 relative">
